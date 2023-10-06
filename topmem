@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+
+import psutil
+
+processes = psutil.process_iter()
+
+memory_processes = []
+for process in processes:
+  if len(process.cmdline()) >= 1:
+    memory_processes.append((process.cmdline()[0], process.memory_info().rss / 1048576))
+
+memory_processes.sort(key=lambda x: x[1], reverse=True)
+
+for i, process in enumerate(memory_processes[:10]):
+  print(f"{i + 1}. {process[0]} ({process[1]:.2f} MB)")
+
+
