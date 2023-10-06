@@ -1,5 +1,5 @@
 # topmem
-shows top 10 memory processes
+### shows top 10 memory processes
 ```
 $ topmem
 1. /opt/google/chrome/chrome (373.16 MB)
@@ -12,4 +12,14 @@ $ topmem
 8. /opt/google/chrome/chrome (180.11 MB)
 9. /usr/bin/python3 (169.36 MB)
 10. /usr/share/code/code (158.71 MB)
+```
+### extra options
+```
+$ topmem -h   
+usage: topmem [-h] [-g] [-a]
+
+options:
+  -h, --help  show this help message and exit
+  -g          group memory usage by application
+  -a          view all processes
 ```

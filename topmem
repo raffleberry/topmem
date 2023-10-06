@@ -1,6 +1,15 @@
 #!/usr/bin/python3
 
 import psutil
+import argparse
+from itertools import groupby
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-g", help="group memory usage by application", action="count")
+parser.add_argument("-a", help="view all processes", action="count")
+
+args = parser.parse_args()
 
 processes = psutil.process_iter()
 
@@ -9,9 +18,23 @@ for process in processes:
   if len(process.cmdline()) >= 1:
     memory_processes.append((process.cmdline()[0], process.memory_info().rss / 1048576))
 
+# print(groupby(memory_processes, lambda x:x[0]))
+
+if args.g:
+  d = {}
+  for proc, mem in memory_processes:
+    if proc not in d:
+      d[proc] = mem
+    else:
+      d[proc] = d[proc] + mem
+  memory_processes = list(map(lambda x:[x,d[x]], d))
+
 memory_processes.sort(key=lambda x: x[1], reverse=True)
 
-for i, process in enumerate(memory_processes[:10]):
-  print(f"{i + 1}. {process[0]} ({process[1]:.2f} MB)")
+if not args.a:
+  memory_processes = memory_processes[:10]
 
+
+for i, process in enumerate(memory_processes):
+  print(f"{i + 1}. {process[0]} ({process[1]:.2f} MB)")
 
