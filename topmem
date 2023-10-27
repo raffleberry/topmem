@@ -8,33 +8,50 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-g", help="group memory usage by application", action="count")
 parser.add_argument("-a", help="view all processes", action="count")
+parser.add_argument("-f", help="print full program path", action="count")
 
 args = parser.parse_args()
 
 processes = psutil.process_iter()
 
+# get info 
 memory_processes = []
 for process in processes:
   if len(process.cmdline()) >= 1:
-    memory_processes.append((process.cmdline()[0], process.memory_info().rss / 1048576))
+    memory_processes.append([process.cmdline()[0], process.memory_info().rss / 1048576])
 
-# print(groupby(memory_processes, lambda x:x[0]))
-
+# process
 if args.g:
   d = {}
-  for proc, mem in memory_processes:
+  for [proc, mem] in memory_processes:
     if proc not in d:
-      d[proc] = mem
+      d[proc] = [mem, 1]
     else:
-      d[proc] = d[proc] + mem
+      i = d[proc]
+      i[0] += mem
+      i[1] += 1
+
   memory_processes = list(map(lambda x:[x,d[x]], d))
+
+if not args.f:
+  memory_processes = list(map(lambda x: [x[0].split("/")[-1], x[1]], memory_processes))
 
 memory_processes.sort(key=lambda x: x[1], reverse=True)
 
 if not args.a:
   memory_processes = memory_processes[:10]
 
-
+# output
+sl_pad = len(str(len(memory_processes)))
 for i, process in enumerate(memory_processes):
-  print(f"{i + 1}. {process[0]} ({process[1]:.2f} MB)")
+  sl_no = f"{i + 1:>{sl_pad}}."
+  print(sl_no, end=" ")
+  if not args.f and len(process[0]) > 30:
+    process[0] = process[0][:27] + "..."
+  
+  if not args.g:
+    print(f"{process[1]:.2f} MB", end="\t")
+  else:
+    print(f"{process[1][0]:.2f} MB\t({str(process[1][1])}) ", end="")
 
+  print(f"{process[0]:30}")
