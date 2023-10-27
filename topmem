@@ -45,14 +45,13 @@ if not args.a:
 sl_pad = len(str(len(memory_processes)))
 for i, process in enumerate(memory_processes):
   sl_no = f"{i + 1:>{sl_pad}}."
-
-  if args.f:
-    print(f"{sl_no} {process[0]}\t{process[1]:.2f} MB")
+  print(sl_no, end=" ")
+  if not args.f and len(process[0]) > 30:
+    process[0] = process[0][:27] + "..."
+  
+  if not args.g:
+    print(f"{process[1]:.2f} MB", end="\t")
   else:
-    if len(process[0]) > 30:
-      process[0] = process[0][:27] + "..."
-    
-    if not args.g:
-      print(f"{sl_no} {process[0]:30}\t{process[1]:.2f} MB")
-    else:
-      print(f"{sl_no} {'(' + str(process[1][1]) + ') ' + process[0]:30}\t{process[1][0]:.2f} MB")
+    print(f"{process[1][0]:.2f} MB\t({str(process[1][1])}) ", end="")
+
+  print(f"{process[0]:30}")
